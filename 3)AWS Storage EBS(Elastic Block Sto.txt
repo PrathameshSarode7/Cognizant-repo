@@ -1,0 +1,139 @@
+3)AWS Storage EBS(Elastic Block Storage)
+
+Topics:-
+EBS
+Snapshot
+Mount ebs
+EFS
+
+-EBS is the storage on your instance we can use multiple EBS on one instance and we can also modify storage acc to requirements without having ec2 restart
+
+-we can save the storage of instance if we have to delete instance but not storage then we have to change setting while creating an instance when the time of storage allocation just go to AdvanceSetting>Terminate Storage while delete>Click NO
+
+
+-CREATE EBS and ATTACH to EC2 instance
+Go to EC2 instance click Connect>
+create volume in EBS in same AZ>select and Action Attach Volume>give device name
+
+you can check if it is connected or not via EC2 connect terminal
+type (lsblk)
+
+
+
+--EBS SNAPSHOT
+Work of snapshot is to take backup of ebs storage
+
+Snapshot = Backup of EBS
+
+Stored in S3 internally
+Can restore anytime
+
+
+
+--What is “Mount EBS in Linux”?
+ Mounting = Making the disk usable inside the system
+When you attach an EBS volume:
+
+AWS connects the disk to your EC2 
+BUT Linux doesn’t automatically use it
+
+So you must mount it to access it.
+
+-basically u r creating new instance attaching the default storage instead of new ebs you just created so mount is just that
+
+COMMANDS
+1 lsblk
+-it will Show more lines
+You’ll see something like:
+xvda   (main disk)
+xvdf   (new EBS disk)
+
+2 sudo mkfs.ext4 /dev/xvdf    //create file system
+3 sudo mkdir /data           //directory
+4 mounting
+sudo mount /dev/xvdf /data
+
+After Mounting
+You can now:
+
+Save files → /data/file.txt
+Store database
+Upload logs
+
+👉 It behaves like normal storage
+
+Mount is temporary
+If instance restarts:
+
+2. Unmount before detach
+sudo unmount /data
+
+3. Auto Mount so dont have to mount it again nd again
+
+--EFS
+
+EFS = Elastic File System
+It is a shared storage system in AWS.
+Simple meaning:
+
+One storage
+Can be used by multiple EC2 instances at the same time
+
+
+EBS:
+👉 “One disk → One server”
+EFS:
+👉 “One storage → Many servers”
+
+
+
+Hands on
+1)Create 2 EC2 instances (for testing sharing)
+
+Go to EC2 → Launch Instance
+Choose:
+
+Amazon Linux
+t2.micro (free tier)
+
+Same VPC 
+Same security group ✅
+Important:
+Allow NFS port 2049 in security group
+
+2)
+Go to EFS → Create file system
+Select:
+Same VPC as EC2
+
+Click Create
+
+3)Step 3: Connect EC2 to EFS
+Go to:
+EFS → Click your file system → Connect
+You will see mount command like:
+sudo mount -t nfs4 fs-xxxx:/ /mnt/efs
+
+4)Install NFS Client (on BOTH EC2)
+Login to EC2 via SSH and run:
+sudo yum install -y nfs-utils
+
+5:) Create Mount Directory
+sudo mkdir /efs
+
+6:) Mount EFS
+Replace fs-xxxx with your ID:
+sudo mount -t nfs4 fs-xxxx:/ /efs
+
+7:) Test Sharing (Important)
+On EC2-1:
+cd /efsecho "Hello from EC2-1" > test.txt
+
+On EC2-2:
+cd /efscat test.txt
+
+You will see same file → Shared storage working!
+
+8)8: Make it Permanent (Auto-Mount)
+Edit fstab:
+Shellsudo vi /etc/fstab

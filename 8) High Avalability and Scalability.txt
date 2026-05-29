@@ -1,0 +1,209 @@
+8) High Avalability and Scalability (ELB & ASG)
+
+Scalability
+load balancer
+types of load balancer
+Sticky session 
+crossload balancing 
+Auto Scaling group
+
+- Vertical Scalability- increasing the size of instance eg if it run on t2.micro insted we vertically scale it it will run on t2.large
+it is common for database based application as size keeps on inc
+eg RDS , ElastiCache are services that can scale vertically 
+
+- Horizontal Scalability- increasing the number of instance of your application
+Horizontal scaling implies distributed system
+
+- High Availability
+high availability goes on with horizontal scaling
+
+it means there should be atleast 2 datacenters
+goal is to survive a datacenter loss
+
+
+--Load Balancer 
+
+terms -targetgroup->that is your loadbalancer
+      -target -> that is your instances
+
+
+load balancer is between user and (ec2 instance) as user request it will go to load balancer and load balancer will decide likewise
+
+4 kinds of load balancer
+  1 Classic load balancer(old gen) - for http, https,tcp,ssl
+  2 Application Load Balancer (new gen)- for Http,https,webSocket
+  3 Network load balancer (new gen) - for tcp,Tls , udp
+  4 Gateway load balaner - operates at network layer ip Protocol
+
+--CREATE (ALB)APPLICATION LOAD BALANCER
+
+
+first you should have 2 or more instance
+do basic configurations>name>scheme internet-facing>IPv4
+>Network mapping deploy in all zones 
+>create new security group >allow http>in inbound http>anywhere  outboundsame
+choose the security group
+>create a target group configure
+select that and just create load balancer after active
+
+copy dns to google for check
+
+after creating load balancer of ALB what we have to do is just go to ec2 instance go to security(inbound traffic) and disable that http which is saying allow traffic from any where change that to just allow load balancer select the load balancer that you have created 
+
+Alb Rules
+EC2>Load Balancers> DemoALB>HTTP:80 listner >Add rule
+add conditions ,rules
+
+--NLB(Network load balancer)
+network load balancers allow tcp and udp traffic to your instance handle millions of request per seconds
+
+create NLB
+name, interet facing,ipv4 ,vpc , every availability zone
+add create security group>demosecurity >http anywhere>choose
+
+create target group>instances>demo-tg-nlb>tcp:80 >http>next
+select 2 instances and click include as pending below
+go to nlb and create 
+copy that url dns of nlb  and paste in google
+-(if Unhealthy loadbalancer will fail) because
+at last previously we have not allowed traffic of nlb we had only allowed traffic of alb load balancer so go to EC2>security>inbound rules>add this rule
+http> load balancer from nlb>save
+your url will work now if healthy
+
+--GLB(Gateway Load Balancer)
+user->GLB->TargetGroup(Ec2 servers)->GLB->application destination
+
+use for deploy ,scale and manage a fleet of 3rd party virtual appliance aws
+operate in 3rd layer network layer
+
+
+--Sticky Session
+it is possible to implement stickiness so that the same client always redirect to same instance behind load balancer
+this work on ALP and NLP
+'cookie ' is use for stickiness 
+
+EC2>Target Groups>Actions>Edit Attributes>Target selection
+>turn on stickiness>load balaner generated cookie
+>do configuration>name>save
+
+--Cross Load balancing()
+image 8.2
+and it is default on for my elb
+
+
+--Auto Scaling Groups (ASG) 
+ASG = Automatically adjust number of EC2 instances
+
+ Real-Life Example
+Zomato hires more delivery boys during rush
+ AWS adds more servers when traffic increases
+
+Step 1: Create Launch Template
+
+EC2>Auto Scaling groups
+EC2 → Launch Templates
+Create template:
+AMI: Amazon Linux
+Type: t2.micro
+Security group: allow HTTP
+
+Step 2: Create ASG
+
+Go to:
+ EC2 → Auto Scaling Groups
+Click:
+Select template
+Choose:
+VPC + subnets (at least 2 AZs)
+
+Step 3: Set Capacity
+Min = 1
+Desired = 2
+Max = 4
+
+Step 4: Attach Load Balancer
+
+Select existing ALB
+Target group
+
+Step 5: Create
+Now ASG will manage instances
+
+
+--Scaling Policies
+
+1. Target Tracking (MOST IMPORTANT)
+ Keep metric at fixed value
+Example:
+
+CPU = 50%
+
+If CPU > 50% → add instance
+If CPU < 50% → remove instance
+ Easiest & most used
+
+2. Step Scaling
+ Scale based on thresholds
+Example:
+
+CPU > 70% → +1 instance
+CPU > 90% → +2 instances
+
+
+3. Scheduled Scaling
+ Scale at specific time
+Example:
+
+Add instances at 9 AM (office hours)
+
+
+-Scaling Policies Hands-on
+Add Scaling Policy
+
+Go → Auto Scaling Group
+Click:
+👉 Automatic Scaling → Add policy
+
+
+✅ Target Tracking Setup
+
+Select:
+
+Target tracking
+
+
+Choose metric:
+
+CPU Utilization
+
+
+Set:
+
+Target: 50%
+
+
+
+
+✅ Step Scaling (Example)
+
+Add policy → Step scaling
+Set:
+
+Alarm: CPU > 70% → +1
+CPU > 90% → +2
+
+
+
+
+✅ Scheduled Scaling
+
+Go to:
+👉 Scheduled actions
+Define:
+
+Time
+Number of instances
+
+
+
+

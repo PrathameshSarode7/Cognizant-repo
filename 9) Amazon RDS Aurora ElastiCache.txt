@@ -1,0 +1,160 @@
+9) Amazon RDS Aurora ElastiCache
+
+--RDS (Relaitonal database service)
+it managed DB service for sql as Query language
+
+it allows you to create db in cloud eg MySQL ,etc
+Instead of installing DB manually: AWS manages everything
+
+if you don't have to use RDS then you have to install MySQL in you Ec2 instance but with rds aws does all that
+
+RDS detect you are running out of free database storage, it scale automatically
+don't have to manully increase volume of your database
+you have max storage limit of db
+Eg-   free storage is less than 10% allocated storage
+	low storage last at least 5min
+	6hr have passed since last modification
+
+
+-RDS Read Replicas- up to 15 read replica within Across AZ
+ 
+so it meance ReadReplica just have(READ) type of operations
+(9.1)
+  	 Users
+          |
+    ----------------
+    |     |       |
+ Writer  Reader  Reader
+
+-RDS HANDS-ON
+
+Dashboard>Aurora and RDS >Databases>create DB
+Engine option -MySQL
+default rest
+then Templates ->choose free tier
+	but with production you can choose multi AZ db instance that we can see in img 9.1
+
+keep every thing default
+masterusername-admin
+Crendentials management->self manage
+give masterpassword 
+password authentication
+choose default every thing
+
+Additional Configuration
+intial database name- mydb
+CREATE DATABASE
+
+-SQL ECTRON(download from browser)
+ download gui>GitHub latest version ac to your pc
+
+-Go to SecurityGroup>edit inbound rules
+modify it remove the ip addr and source it to anywhere from ipv4 and save
+
+in SQL ECTRON
+add db-RDSDemo ,MYSQL,server add,port ,user-admin,pass,intital db-mydb
+then test(connection success)
+
+give db statements create etc
+
+-we can build read replica by go in RDS action ->read replica
+
+
+--AWS AURORA
+
+Aurora =it is aws own database engine AWS’s high-performance version of RDS and more scalable more reliable
+
+   Users
+          |
+    ----------------
+    |     |       |
+ Writer  Reader  Reader
+    \      |       /
+     ----------- 
+     Shared Storage
+
+
+-aurora automatically scale from 10 gb to 128tb 
+-it can replicate to 12 read replicas
+-it ican manage failover in under 30 sec
+-auto scale up and down base on load great for unpredictable loads
+-
+
+
+--AURora vs RDS
+NEED high performance + scalability -> Aurora
+need simple, cost eff Db-> rds
+
+
+
+
+Aurora &RDS backups
+backups are automated in 1 to 35 days'
+if you want to take snapshot have to do it manually
+
+
+for restoring backups of both
+create backup of your db
+store it on aws s3
+restore the backupon new Aurora/RDS instance while running on MySQL
+
+--ElastiCache Overview
+ Simple Idea
+ ElastiCache = In-memory cache
+ Stores data in RAM → super fast
+
+Use cache when:
+✅ Same data requested frequently
+✅ Reduce DB load
+✅ Improve app speed
+eg-:
+Redis
+Memcached
+
+
+-ELasticCache handson
+ Step 1: Go to ElastiCache
+AWS Console → ElastiCache
+
+✅ Step 2: Create Cluster
+Click:
+👉 Create cluster
+Select:
+Redis (recommended)
+Choose:
+Node type: small
+VPC: Default
+
+✅ Step 3: Security
+Add security group
+Allow port:
+Redis → 6379
+
+✅ Step 4: Connect
+From EC2:
+Shellredis-cli -h endpoint
+
+
+FTP: 21
+
+SSH: 22
+
+SFTP: 22 (same as SSH)
+
+HTTP: 80
+
+HTTPS: 443
+
+vs RDS Databases ports:
+
+PostgreSQL: 5432
+
+MySQL: 3306
+
+Oracle RDS: 1521
+
+MSSQL Server: 1433
+
+MariaDB: 3306 (same as MySQL)
+
+Aurora: 5432 (if PostgreSQL compatible) or 3306 (if MySQL compatible)
